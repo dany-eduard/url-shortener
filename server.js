@@ -47,7 +47,6 @@ app.post('/api/shorturl', async (req, res) => {
 
 app.get('/api/shorturl/:short', async (req, res) => {
   const { short } = req.params;
-  console.log(' short', +short);
   const { original_url, short_url } = await Url.findOne({ short_url: +short });
   res.json({ original_url, short_url });
 });
