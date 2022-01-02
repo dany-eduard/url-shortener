@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import mongoose from 'mongoose';
-import isUrl from './utils/isUrl.js';
+import isHttpUrl from './utils/httpUrlRegExpValudator.js';
 
 dotenv.config();
 
@@ -29,14 +29,14 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/public', express.static(`${process.cwd()}/public`));
 
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
   res.sendFile(process.cwd() + '/views/index.html');
 });
 
 // Your first API endpoint
 app.post('/api/shorturl', async (req, res) => {
   const { url } = req.body;
-  if (!isUrl(url)) return res.json({ error: 'invalid url' });
+  if (!isHttpUrl(url)) return res.json({ error: 'invalid url' });
 
   const count = await Url.countDocuments({ short_url: { $gte: 0 } });
   const newUrl = new Url({ original_url: url, short_url: count });
@@ -48,9 +48,9 @@ app.post('/api/shorturl', async (req, res) => {
 app.get('/api/shorturl/:short', async (req, res) => {
   const { short } = req.params;
   const { original_url, short_url } = await Url.findOne({ short_url: +short });
-  res.json({ original_url, short_url });
+  res.redirect(301, original_url)
 });
 
-app.listen(port, function () {
+app.listen(port, function() {
   console.log(`Listening on port ${port}`);
 });
